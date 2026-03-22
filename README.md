@@ -1,6 +1,6 @@
 # Registro NIS2
 
-Applicazione web per gestire il registro degli asset, servizi e fornitori di Prima Industrie S.p.A. in ottica di conformità alla direttiva NIS2.
+Applicazione web per gestire il registro degli asset, servizi e fornitori in ottica di conformità alla direttiva NIS2.
 
 Project work per il corso di Informatica per le Aziende Digitali (L-31), Università Telematica Pegaso.
 
