@@ -139,6 +139,9 @@ def index():
     cur.execute("SELECT COUNT(*) FROM fornitore")
     num_fornitori = cur.fetchone()[0]
 
+    cur.execute("SELECT COUNT(*) FROM servizio")
+    num_servizi = cur.fetchone()[0]
+
     # quanti controlli ACN abbiamo marcato come implementati
     cur.execute("SELECT COUNT(*) FROM controllo_status WHERE status = 'implementato'")
     num_implementati = cur.fetchone()[0]
@@ -158,6 +161,7 @@ def index():
         num_asset=num_asset,
         num_critici=num_critici,
         num_fornitori=num_fornitori,
+        num_servizi=num_servizi,
         num_implementati=num_implementati,
         num_controlli=num_controlli,
         num_non_implementati=num_non_implementati
@@ -355,6 +359,103 @@ def asset_elimina(id_asset):
     conn.close()
     flash("Asset eliminato.", "warning")
     return redirect(url_for("asset_lista"))
+
+
+# ---- SERVIZI ----
+# gestione dei servizi di business nel perimetro NIS2
+# ogni servizio può essere collegato a più asset (N:M)
+
+@app.route("/servizi")
+def servizi_lista():
+    """Elenco servizi con conteggio asset collegati."""
+    conn = get_db()
+    cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+    # conto quanti asset ha ogni servizio con un LEFT JOIN
+    cur.execute("""
+        SELECT s.id_servizio, s.nome, s.descrizione,
+               COUNT(ase.id_asset) AS num_asset
+        FROM servizio s
+        LEFT JOIN asset_servizio ase ON s.id_servizio = ase.id_servizio
+        GROUP BY s.id_servizio
+        ORDER BY s.nome
+    """)
+    servizi = cur.fetchall()
+    cur.close()
+    conn.close()
+    return render_template("servizi_lista.html", servizi=servizi)
+
+
+@app.route("/servizi/nuovo", methods=["GET", "POST"])
+def servizio_nuovo():
+    """Form per aggiungere un servizio."""
+    if request.method == "POST":
+        nome        = request.form["nome"].strip()
+        descrizione = request.form["descrizione"].strip()
+
+        if not nome or not descrizione:
+            flash("Nome e descrizione sono obbligatori.", "danger")
+        else:
+            conn = get_db()
+            cur = conn.cursor()
+            cur.execute("""
+                INSERT INTO servizio (nome, descrizione)
+                VALUES (%s, %s)
+            """, (nome, descrizione))
+            conn.commit()
+            cur.close()
+            conn.close()
+            flash("Servizio inserito.", "success")
+            return redirect(url_for("servizi_lista"))
+
+    return render_template("servizio_form.html", servizio=None)
+
+
+@app.route("/servizi/<int:id_servizio>/modifica", methods=["GET", "POST"])
+def servizio_modifica(id_servizio):
+    """Form per modificare un servizio esistente."""
+    conn = get_db()
+    cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+    cur.execute("SELECT * FROM servizio WHERE id_servizio = %s", (id_servizio,))
+    servizio = cur.fetchone()
+    if servizio is None:
+        flash("Servizio non trovato.", "danger")
+        return redirect(url_for("servizi_lista"))
+
+    if request.method == "POST":
+        nome        = request.form["nome"].strip()
+        descrizione = request.form["descrizione"].strip()
+
+        if not nome or not descrizione:
+            flash("Nome e descrizione sono obbligatori.", "danger")
+        else:
+            cur.execute("""
+                UPDATE servizio SET nome = %s, descrizione = %s
+                WHERE id_servizio = %s
+            """, (nome, descrizione, id_servizio))
+            conn.commit()
+            flash("Servizio aggiornato.", "success")
+            cur.close()
+            conn.close()
+            return redirect(url_for("servizi_lista"))
+
+    cur.close()
+    conn.close()
+    return render_template("servizio_form.html", servizio=servizio)
+
+
+@app.route("/servizi/<int:id_servizio>/elimina", methods=["POST"])
+def servizio_elimina(id_servizio):
+    """Elimina un servizio e le sue associazioni asset."""
+    conn = get_db()
+    cur = conn.cursor()
+    # prima tolgo le righe ponte, poi il servizio
+    cur.execute("DELETE FROM asset_servizio WHERE id_servizio = %s", (id_servizio,))
+    cur.execute("DELETE FROM servizio WHERE id_servizio = %s", (id_servizio,))
+    conn.commit()
+    cur.close()
+    conn.close()
+    flash("Servizio eliminato.", "warning")
+    return redirect(url_for("servizi_lista"))
 
 
 # ---- FORNITORI ----
