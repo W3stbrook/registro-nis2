@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>{% if servizio %}Modifica servizio{% else %}Nuovo servizio{% endif %}</h2>
+    <a href="{{ url_for('servizi_lista') }}" class="btn btn-outline-dark">← Annulla</a>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <form method="post">
+            <div class="mb-3">
+                <label for="nome" class="form-label">Nome servizio <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="nome" name="nome"
+                       value="{{ servizio.nome if servizio else '' }}" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="descrizione" class="form-label">Descrizione <span class="text-danger">*</span></label>
+                <textarea class="form-control" id="descrizione" name="descrizione" rows="3"
+                          required>{{ servizio.descrizione if servizio else '' }}</textarea>
+            </div>
+
+            <button type="submit" class="btn btn-primary">
+                {% if servizio %}Salva modifiche{% else %}Inserisci servizio{% endif %}
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}

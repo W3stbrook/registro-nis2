@@ -62,6 +62,10 @@
                        href="{{ url_for('asset_lista') }}">Asset</a>
                 </li>
                 <li class="nav-item">
+                    <a class="nav-link {% if 'servizi' in request.endpoint or 'servizio' in request.endpoint %}active{% endif %}"
+                       href="{{ url_for('servizi_lista') }}">Servizi</a>
+                </li>
+                <li class="nav-item">
                     <a class="nav-link {% if 'fornitore' in request.endpoint or 'fornitori' in request.endpoint %}active{% endif %}"
                        href="{{ url_for('fornitori_lista') }}">Fornitori</a>
                 </li>
