@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Nuovo responsabile</h2>
+    <a href="{{ url_for('responsabili_lista') }}" class="btn btn-outline-dark">← Annulla</a>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <form method="post">
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label for="nome" class="form-label">Nome <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="nome" name="nome" required>
+                </div>
+                <div class="col-md-6">
+                    <label for="cognome" class="form-label">Cognome <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="cognome" name="cognome" required>
+                </div>
+            </div>
+            <div class="mb-3 mt-3">
+                <label for="email" class="form-label">Email <span class="text-danger">*</span></label>
+                <input type="email" class="form-control" id="email" name="email" required>
+            </div>
+            <div class="mb-3">
+                <label for="ruolo" class="form-label">Ruolo <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="ruolo" name="ruolo" required>
+            </div>
+            <div class="mb-3">
+                <label for="telefono" class="form-label">Telefono</label>
+                <input type="text" class="form-control" id="telefono" name="telefono">
+            </div>
+            <button type="submit" class="btn btn-primary">Inserisci responsabile</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

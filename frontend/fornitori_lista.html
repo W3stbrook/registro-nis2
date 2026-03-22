@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Fornitori</h2>
+    <a href="{{ url_for('fornitore_nuovo') }}" class="btn btn-primary">+ Nuovo fornitore</a>
+</div>
+
+<div class="card">
+    <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+            <thead class="table-dark">
+                <tr>
+                    <th>Ragione sociale</th>
+                    <th>Tipo fornitura</th>
+                    <th>Livello accesso</th>
+                    <th>Impatto interruzione</th>
+                    <th>Referente</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for f in fornitori %}
+                <tr>
+                    <td>{{ f.ragione_sociale }}</td>
+                    <td>{{ f.tipo_fornitura }}</td>
+                    <td>{{ f.livello_accesso.replace('_', ' ') }}</td>
+                    <td>
+                        <span class="badge badge-{{ f.impatto_interruzione }}">{{ f.impatto_interruzione }}</span>
+                    </td>
+                    <td>{{ f.referente_nome }}</td>
+                    <td class="text-end">
+                        <a href="{{ url_for('fornitore_modifica', id_fornitore=f.id_fornitore) }}"
+                           class="btn btn-sm btn-outline-secondary">Modifica</a>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="6" class="text-center text-muted py-4">Nessun fornitore presente.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

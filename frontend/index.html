@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2 class="mb-4">Dashboard</h2>
+
+<!-- banner che mostra la classificazione NIS2 dell'azienda -->
+{% if profilo %}
+<div class="alert alert-{{ 'danger' if profilo.classificazione == 'essenziale' else 'warning' }} py-2 mb-3">
+    <strong>{{ profilo.ragione_sociale }}</strong> —
+    Soggetto {{ profilo.classificazione|upper }}
+    ({{ profilo.settore }})
+</div>
+{% else %}
+<div class="alert alert-info py-2 mb-3">
+    Nessun profilo azienda configurato.
+    <a href="{{ url_for('profilo_azienda') }}">Configura il profilo</a> per attivare il filtro automatico dei controlli ACN.
+</div>
+{% endif %}
+
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="card text-white bg-primary h-100">
+            <div class="card-body">
+                <h5 class="card-title">Asset totali</h5>
+                <p class="display-4 mb-0">{{ num_asset }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-danger h-100">
+            <div class="card-body">
+                <h5 class="card-title">Asset critici</h5>
+                <p class="display-4 mb-0">{{ num_critici }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-secondary h-100">
+            <div class="card-body">
+                <h5 class="card-title">Fornitori</h5>
+                <p class="display-4 mb-0">{{ num_fornitori }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-success h-100">
+            <div class="card-body">
+                <h5 class="card-title">Controlli implementati</h5>
+                <p class="display-4 mb-0">{{ num_implementati }} / {{ num_controlli }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">Accesso rapido</div>
+            <div class="card-body d-flex flex-wrap gap-2">
+                <a href="{{ url_for('asset_nuovo') }}" class="btn btn-outline-primary">+ Nuovo asset</a>
+                <a href="{{ url_for('fornitore_nuovo') }}" class="btn btn-outline-secondary">+ Nuovo fornitore</a>
+                <a href="{{ url_for('responsabile_nuovo') }}" class="btn btn-outline-dark">+ Nuovo responsabile</a>
+                <a href="{{ url_for('acn_lista') }}" class="btn btn-outline-info">Catalogo ACN</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">Stato conformità ACN</div>
+            <div class="card-body">
+                <p class="mb-1">Controlli implementati: <strong>{{ num_implementati }}</strong></p>
+                <p class="mb-1">Controlli non implementati: <strong>{{ num_non_implementati }}</strong></p>
+                <p class="mb-0">Totale controlli: <strong>{{ num_controlli }}</strong></p>
+                {# barra di avanzamento, calcoliamo la percentuale con Jinja2 #}
+                <div class="progress mt-3" style="height: 20px;">
+                    <div class="progress-bar bg-success" role="progressbar"
+                         style="width: {{ (num_implementati / num_controlli * 100) | round | int }}%">
+                        {{ (num_implementati / num_controlli * 100) | round | int }}%
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

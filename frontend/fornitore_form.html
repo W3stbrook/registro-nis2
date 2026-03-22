@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>{% if fornitore %}Modifica fornitore{% else %}Nuovo fornitore{% endif %}</h2>
+    <a href="{{ url_for('fornitori_lista') }}" class="btn btn-outline-dark">← Annulla</a>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <form method="post">
+            <div class="mb-3">
+                <label for="ragione_sociale" class="form-label">Ragione sociale <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="ragione_sociale" name="ragione_sociale"
+                       value="{{ fornitore.ragione_sociale if fornitore else '' }}" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="referente_nome" class="form-label">Nome referente <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="referente_nome" name="referente_nome"
+                       value="{{ fornitore.referente_nome if fornitore else '' }}" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="referente_email" class="form-label">Email referente <span class="text-danger">*</span></label>
+                <input type="email" class="form-control" id="referente_email" name="referente_email"
+                       value="{{ fornitore.referente_email if fornitore else '' }}" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="tipo_fornitura" class="form-label">Tipo fornitura <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="tipo_fornitura" name="tipo_fornitura"
+                       value="{{ fornitore.tipo_fornitura if fornitore else '' }}" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="livello_accesso" class="form-label">Livello accesso <span class="text-danger">*</span></label>
+                <select class="form-select" id="livello_accesso" name="livello_accesso" required>
+                    {% for v in ['nessuno', 'limitato', 'completo'] %}
+                    <option value="{{ v }}"
+                            {% if fornitore and fornitore.livello_accesso == v %}selected{% endif %}>
+                        {{ v }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label for="impatto_interruzione" class="form-label">Impatto interruzione <span class="text-danger">*</span></label>
+                <select class="form-select" id="impatto_interruzione" name="impatto_interruzione" required>
+                    {% for v in ['alto', 'medio', 'basso'] %}
+                    <option value="{{ v }}"
+                            {% if fornitore and fornitore.impatto_interruzione == v %}selected{% endif %}>
+                        {{ v }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <button type="submit" class="btn btn-primary">
+                {% if fornitore %}Salva modifiche{% else %}Inserisci fornitore{% endif %}
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}

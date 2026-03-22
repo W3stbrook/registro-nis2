@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2 class="mb-3">Referenti ACN</h2>
+<p class="text-muted">
+    Ruoli formali dell'organizzazione verso l'Agenzia per la Cybersicurezza Nazionale,
+    ai sensi dell'art. 7 del D.Lgs. 138/2024 e della Determinazione ACN 164179/2025.
+</p>
+
+<div class="row g-3">
+    {% for r in referenti %}
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-header">
+                {{ r.ruolo.replace('_', ' ').title() }}
+            </div>
+            <div class="card-body">
+                <p class="card-title fw-bold mb-1">{{ r.nome }} {{ r.cognome }}</p>
+                <p class="mb-1"><a href="mailto:{{ r.email }}">{{ r.email }}</a></p>
+                <p class="mb-2 text-muted">{{ r.telefono }}</p>
+                <a href="{{ url_for('referente_acn_modifica', id_referente=r.id_referente) }}"
+                   class="btn btn-sm btn-outline-secondary">Modifica</a>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="col-12">
+        <p class="text-muted">Nessun referente ACN registrato.</p>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

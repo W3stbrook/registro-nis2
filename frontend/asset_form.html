@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>{% if asset %}Modifica asset{% else %}Nuovo asset{% endif %}</h2>
+    <a href="{{ url_for('asset_lista') }}" class="btn btn-outline-dark">← Annulla</a>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <form method="post">
+            <div class="mb-3">
+                <label for="nome" class="form-label">Nome <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="nome" name="nome"
+                       value="{{ asset.nome if asset else '' }}" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="tipo" class="form-label">Tipo <span class="text-danger">*</span></label>
+                <select class="form-select" id="tipo" name="tipo" required>
+                    {% set tipi = ['dispositivo_it', 'dispositivo_iot', 'dispositivo_ot', 'dispositivo_mobile', 'applicazione', 'rete'] %}
+                    {% for t in tipi %}
+                    <option value="{{ t }}" {% if asset and asset.tipo == t %}selected{% endif %}>
+                        {{ t.replace('_', ' ') }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label for="sistema_operativo" class="form-label">Sistema operativo</label>
+                <input type="text" class="form-control" id="sistema_operativo" name="sistema_operativo"
+                       value="{{ asset.sistema_operativo if asset and asset.sistema_operativo else '' }}"
+                       placeholder="Lasciare vuoto se non applicabile">
+            </div>
+
+            <div class="mb-3">
+                <label for="descrizione" class="form-label">Descrizione <span class="text-danger">*</span></label>
+                <textarea class="form-control" id="descrizione" name="descrizione" rows="3" required>{{ asset.descrizione if asset else '' }}</textarea>
+            </div>
+
+            <div class="mb-3">
+                <label for="criticita" class="form-label">Criticità <span class="text-danger">*</span></label>
+                <select class="form-select" id="criticita" name="criticita" required>
+                    {% for c in ['alto', 'medio', 'basso'] %}
+                    <option value="{{ c }}" {% if asset and asset.criticita == c %}selected{% endif %}>
+                        {{ c }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label for="id_responsabile" class="form-label">Responsabile <span class="text-danger">*</span></label>
+                <select class="form-select" id="id_responsabile" name="id_responsabile" required>
+                    {% for r in responsabili %}
+                    <option value="{{ r.id_responsabile }}"
+                            {% if asset and asset.id_responsabile == r.id_responsabile %}selected{% endif %}>
+                        {{ r.nome }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            {% if asset %}
+            <div class="mb-3">
+                <label for="motivo_modifica" class="form-label">Motivo della modifica</label>
+                <input type="text" class="form-control" id="motivo_modifica" name="motivo_modifica"
+                       placeholder="Opzionale — viene salvato nello storico">
+            </div>
+            {% endif %}
+
+            <button type="submit" class="btn btn-primary">
+                {% if asset %}Salva modifiche{% else %}Inserisci asset{% endif %}
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}

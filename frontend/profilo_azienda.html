@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h2>Profilo Azienda</h2>
+<p class="text-muted">
+    Dati dell'organizzazione per la classificazione ai sensi del D.Lgs. 138/2024.
+    La classificazione determina quali controlli ACN si applicano.
+</p>
+
+{% if profilo %}
+<!-- se il profilo è stato configurato mostro la card con i risultati -->
+<div class="card mb-4 border-{{ 'danger' if profilo.classificazione == 'essenziale' else 'warning' }}">
+    <div class="card-header bg-{{ 'danger' if profilo.classificazione == 'essenziale' else 'warning' }} {{ 'text-white' if profilo.classificazione == 'essenziale' else '' }}">
+        <strong>Classificazione NIS2:</strong>
+        Soggetto {{ profilo.classificazione|upper }}
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6">
+                <p><strong>Ragione sociale:</strong> {{ profilo.ragione_sociale }}</p>
+                <p><strong>Settore:</strong> {{ profilo.settore }}</p>
+                <p><strong>Sotto-settore:</strong> {{ profilo.sotto_settore or 'Non specificato' }}</p>
+            </div>
+            <div class="col-md-6">
+                <p><strong>Fatturato:</strong> {{ profilo.fatturato_milioni }} milioni €</p>
+                <p><strong>Dipendenti:</strong> {{ profilo.num_dipendenti }}</p>
+                <p><strong>Infrastruttura critica:</strong> {{ 'Sì' if profilo.infrastruttura_critica else 'No' }}</p>
+            </div>
+        </div>
+        <hr>
+        <p class="mb-0">
+            <small class="text-muted">
+                {% if profilo.classificazione == 'essenziale' %}
+                    L'organizzazione è classificata come <strong>soggetto essenziale</strong>
+                    (art. 3, comma 1, D.Lgs. 138/2024). Si applicano tutti i controlli ACN
+                    previsti per i soggetti essenziali.
+                {% else %}
+                    L'organizzazione è classificata come <strong>soggetto importante</strong>
+                    (art. 3, comma 2, D.Lgs. 138/2024). Si applicano i controlli ACN
+                    previsti per i soggetti importanti.
+                {% endif %}
+                Il <a href="{{ url_for('acn_lista') }}">Catalogo ACN</a> è filtrato
+                automaticamente in base a questa classificazione.
+            </small>
+        </p>
+    </div>
+</div>
+{% endif %}
+
+<!-- form di inserimento/modifica del profilo -->
+<div class="card">
+    <div class="card-header">
+        <strong>{{ 'Modifica' if profilo else 'Configura' }} profilo azienda</strong>
+    </div>
+    <div class="card-body">
+        <form method="POST">
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label class="form-label">Ragione sociale</label>
+                    <input type="text" class="form-control" name="ragione_sociale"
+                           value="{{ profilo.ragione_sociale if profilo else '' }}" required>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Settore (Allegato I o II NIS2)</label>
+                    <select class="form-select" name="settore" required>
+                        <option value="">-- Seleziona --</option>
+                        <!-- settori Allegato I: alta criticità -->
+                        <optgroup label="Allegato I - Alta criticità">
+                            <option value="Energia" {{ 'selected' if profilo and profilo.settore == 'Energia' }}>Energia</option>
+                            <option value="Trasporti" {{ 'selected' if profilo and profilo.settore == 'Trasporti' }}>Trasporti</option>
+                            <option value="Settore bancario" {{ 'selected' if profilo and profilo.settore == 'Settore bancario' }}>Settore bancario</option>
+                            <option value="Infrastrutture dei mercati finanziari" {{ 'selected' if profilo and profilo.settore == 'Infrastrutture dei mercati finanziari' }}>Infrastrutture dei mercati finanziari</option>
+                            <option value="Settore sanitario" {{ 'selected' if profilo and profilo.settore == 'Settore sanitario' }}>Settore sanitario</option>
+                            <option value="Acqua potabile" {{ 'selected' if profilo and profilo.settore == 'Acqua potabile' }}>Acqua potabile</option>
+                            <option value="Acque reflue" {{ 'selected' if profilo and profilo.settore == 'Acque reflue' }}>Acque reflue</option>
+                            <option value="Infrastrutture digitali" {{ 'selected' if profilo and profilo.settore == 'Infrastrutture digitali' }}>Infrastrutture digitali</option>
+                            <option value="Gestione dei servizi TIC" {{ 'selected' if profilo and profilo.settore == 'Gestione dei servizi TIC' }}>Gestione dei servizi TIC (B2B)</option>
+                            <option value="Pubblica amministrazione" {{ 'selected' if profilo and profilo.settore == 'Pubblica amministrazione' }}>Pubblica amministrazione</option>
+                            <option value="Spazio" {{ 'selected' if profilo and profilo.settore == 'Spazio' }}>Spazio</option>
+                        </optgroup>
+                        <!-- Allegato II -->
+                        <optgroup label="Allegato II - Altri settori critici">
+                            <option value="Servizi postali" {{ 'selected' if profilo and profilo.settore == 'Servizi postali' }}>Servizi postali e di corriere</option>
+                            <option value="Gestione dei rifiuti" {{ 'selected' if profilo and profilo.settore == 'Gestione dei rifiuti' }}>Gestione dei rifiuti</option>
+                            <option value="Fabbricazione" {{ 'selected' if profilo and profilo.settore == 'Fabbricazione' }}>Fabbricazione</option>
+                            <option value="Produzione e distribuzione di sostanze chimiche" {{ 'selected' if profilo and profilo.settore == 'Produzione e distribuzione di sostanze chimiche' }}>Sostanze chimiche</option>
+                            <option value="Produzione e distribuzione di alimenti" {{ 'selected' if profilo and profilo.settore == 'Produzione e distribuzione di alimenti' }}>Produzione e distribuzione di alimenti</option>
+                            <option value="Fornitori di servizi digitali" {{ 'selected' if profilo and profilo.settore == 'Fornitori di servizi digitali' }}>Fornitori di servizi digitali</option>
+                            <option value="Ricerca" {{ 'selected' if profilo and profilo.settore == 'Ricerca' }}>Organizzazioni di ricerca</option>
+                        </optgroup>
+                    </select>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-4">
+                    <label class="form-label">Sotto-settore</label>
+                    <input type="text" class="form-control" name="sotto_settore"
+                           value="{{ profilo.sotto_settore if profilo and profilo.sotto_settore else '' }}"
+                           placeholder="Es. NACE 28 - Fabbricazione macchinari">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Fatturato annuo (milioni €)</label>
+                    <input type="number" step="0.01" class="form-control" name="fatturato_milioni"
+                           value="{{ profilo.fatturato_milioni if profilo else '' }}" required>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Numero dipendenti</label>
+                    <input type="number" class="form-control" name="num_dipendenti"
+                           value="{{ profilo.num_dipendenti if profilo else '' }}" required>
+                </div>
+            </div>
+
+            <div class="mb-3 form-check">
+                <input type="checkbox" class="form-check-input" name="infrastruttura_critica"
+                       id="infraCritica" value="1"
+                       {{ 'checked' if profilo and profilo.infrastruttura_critica }}>
+                <label class="form-check-label" for="infraCritica">
+                    L'organizzazione opera infrastrutture critiche designate a livello nazionale
+                </label>
+            </div>
+
+            <hr>
+            <p class="text-muted small">
+                La classificazione viene calcolata automaticamente in base ai criteri
+                dell'art. 3 del D.Lgs. 138/2024:<br>
+                <strong>Soggetto essenziale:</strong> settore Allegato I + fatturato ≥ 50M€ o ≥ 250 dipendenti,
+                oppure infrastruttura critica designata.<br>
+                <strong>Soggetto importante:</strong> tutti gli altri soggetti nel perimetro NIS2
+                (fatturato ≥ 10M€ o ≥ 50 dipendenti).
+            </p>
+
+            <button type="submit" class="btn btn-primary">
+                Salva e calcola classificazione
+            </button>
+        </form>
+    </div>
+</div>
+
+{% endblock %}

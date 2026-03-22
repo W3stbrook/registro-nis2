@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Modifica referente ACN</h2>
+    <a href="{{ url_for('referenti_acn_lista') }}" class="btn btn-outline-dark">← Annulla</a>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <div class="alert alert-info">
+            Ruolo: <strong>{{ referente.ruolo.replace('_', ' ').title() }}</strong>
+            — il ruolo non è modificabile da interfaccia.
+        </div>
+        <form method="post">
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label for="nome" class="form-label">Nome <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="nome" name="nome"
+                           value="{{ referente.nome }}" required>
+                </div>
+                <div class="col-md-6">
+                    <label for="cognome" class="form-label">Cognome <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="cognome" name="cognome"
+                           value="{{ referente.cognome }}" required>
+                </div>
+            </div>
+            <div class="mb-3 mt-3">
+                <label for="email" class="form-label">Email <span class="text-danger">*</span></label>
+                <input type="email" class="form-control" id="email" name="email"
+                       value="{{ referente.email }}" required>
+            </div>
+            <div class="mb-3">
+                <label for="telefono" class="form-label">Telefono <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="telefono" name="telefono"
+                       value="{{ referente.telefono }}" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Salva modifiche</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>NIS2 Asset DB - Prima Industrie S.p.A.</title>
+    <!--
+        Bootstrap 5.3 via CDN.
+        Fonte: https://getbootstrap.com/docs/5.3/getting-started/introduction/
+        Scelto per semplificare la realizzazione del layout responsive
+        senza dover scrivere CSS da zero.
+    -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+          rel="stylesheet">
+    <style>
+        body { background-color: #f8f9fa; }
+        .navbar-brand { font-weight: bold; letter-spacing: 0.5px; }
+        /* sidebar fissa a sinistra, altezza piena meno la navbar */
+        .sidebar { min-height: calc(100vh - 56px); background: #fff; border-right: 1px solid #dee2e6; }
+        .sidebar .nav-link { color: #495057; }
+        .sidebar .nav-link:hover { background-color: #e9ecef; border-radius: 4px; }
+        .sidebar .nav-link.active { background-color: #0d6efd; color: #fff; border-radius: 4px; }
+        /* classi personalizzate per i badge colorati di criticità e status */
+        .badge-alto    { background-color: #dc3545; }
+        .badge-medio   { background-color: #ffc107; color: #212529; }
+        .badge-basso   { background-color: #198754; }
+        .badge-implementato       { background-color: #198754; }
+        .badge-in_implementazione { background-color: #0dcaf0; color: #212529; }
+        .badge-non_implementato   { background-color: #6c757d; }
+        .badge-non_applicabile    { background-color: #e9ecef; color: #212529; }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-dark bg-dark px-3">
+    <a class="navbar-brand" href="/">NIS2 Asset DB</a>
+    <span class="text-secondary small">Prima Industrie S.p.A.</span>
+</nav>
+
+<div class="container-fluid">
+    <div class="row">
+
+        <!-- Barra laterale di navigazione -->
+        <nav class="col-md-2 sidebar py-3 ps-3">
+            <ul class="nav flex-column gap-1">
+                <li class="nav-item">
+                    <a class="nav-link {% if request.endpoint == 'index' %}active{% endif %}"
+                       href="{{ url_for('index') }}">Dashboard</a>
+                </li>
+                <li class="nav-item mt-2">
+                    <span class="text-muted small text-uppercase px-2">Organizzazione</span>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if request.endpoint == 'profilo_azienda' %}active{% endif %}"
+                       href="{{ url_for('profilo_azienda') }}">Profilo Azienda</a>
+                </li>
+                <li class="nav-item mt-2">
+                    <span class="text-muted small text-uppercase px-2">Registro</span>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if 'asset' in request.endpoint %}active{% endif %}"
+                       href="{{ url_for('asset_lista') }}">Asset</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if 'fornitore' in request.endpoint or 'fornitori' in request.endpoint %}active{% endif %}"
+                       href="{{ url_for('fornitori_lista') }}">Fornitori</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if 'responsabili' in request.endpoint %}active{% endif %}"
+                       href="{{ url_for('responsabili_lista') }}">Responsabili</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if 'referenti' in request.endpoint %}active{% endif %}"
+                       href="{{ url_for('referenti_acn_lista') }}">Referenti ACN</a>
+                </li>
+                <li class="nav-item mt-2">
+                    <span class="text-muted small text-uppercase px-2">Conformità</span>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if request.endpoint == 'acn_lista' %}active{% endif %}"
+                       href="{{ url_for('acn_lista') }}">Catalogo ACN</a>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- Contenuto principale -->
+        <main class="col-md-10 py-4 px-4">
+
+            <!-- Messaggi flash (successo, errori) -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+              {% if messages %}
+                {% for category, message in messages %}
+                  <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                  </div>
+                {% endfor %}
+              {% endif %}
+            {% endwith %}
+
+            {% block content %}{% endblock %}
+
+        </main>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

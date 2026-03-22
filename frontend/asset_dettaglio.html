@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>{{ asset.nome }}</h2>
+    <div>
+        <a href="{{ url_for('asset_modifica', id_asset=asset.id_asset) }}"
+           class="btn btn-outline-secondary">Modifica</a>
+        <a href="{{ url_for('asset_lista') }}" class="btn btn-outline-dark ms-2">← Torna alla lista</a>
+    </div>
+</div>
+
+<div class="row g-3">
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-header">Informazioni generali</div>
+            <div class="card-body">
+                <dl class="row mb-0">
+                    <dt class="col-sm-4">ID</dt>
+                    <dd class="col-sm-8">{{ asset.id_asset }}</dd>
+                    <dt class="col-sm-4">Tipo</dt>
+                    <dd class="col-sm-8">{{ asset.tipo.replace('_', ' ') }}</dd>
+                    <dt class="col-sm-4">Sistema OS</dt>
+                    <dd class="col-sm-8">{{ asset.sistema_operativo or '—' }}</dd>
+                    <dt class="col-sm-4">Criticità</dt>
+                    <dd class="col-sm-8">
+                        <span class="badge badge-{{ asset.criticita }}">{{ asset.criticita }}</span>
+                    </dd>
+                    <dt class="col-sm-4">Descrizione</dt>
+                    <dd class="col-sm-8">{{ asset.descrizione }}</dd>
+                    <dt class="col-sm-4">Responsabile</dt>
+                    <dd class="col-sm-8">
+                        {{ asset.nome_responsabile }}<br>
+                        <small class="text-muted">{{ asset.email_responsabile }}</small>
+                    </dd>
+                </dl>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card mb-3">
+            <div class="card-header">Servizi supportati</div>
+            <div class="card-body">
+                {% if servizi %}
+                    <ul class="list-group list-group-flush">
+                        {% for s in servizi %}
+                        <li class="list-group-item px-0">
+                            <strong>{{ s.nome }}</strong><br>
+                            <small class="text-muted">{{ s.descrizione }}</small>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p class="text-muted mb-0">Nessun servizio associato.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">Fornitori correlati</div>
+            <div class="card-body">
+                {% if fornitori %}
+                    <ul class="list-group list-group-flush">
+                        {% for f in fornitori %}
+                        <li class="list-group-item px-0">
+                            <strong>{{ f.ragione_sociale }}</strong>
+                            <span class="badge badge-{{ f.impatto_interruzione }} ms-2">
+                                impatto {{ f.impatto_interruzione }}
+                            </span><br>
+                            <small class="text-muted">
+                                {{ f.tipo_fornitura }} — accesso: {{ f.livello_accesso.replace('_', ' ') }}
+                            </small>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p class="text-muted mb-0">Nessun fornitore associato.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Storico versioni -->
+{% if storico %}
+<div class="card mt-3">
+    <div class="card-header">Storico modifiche</div>
+    <div class="card-body p-0">
+        <table class="table table-sm mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Data modifica</th>
+                    <th>Motivo</th>
+                    <th>Snapshot</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for v in storico %}
+                <tr>
+                    <td class="text-nowrap">{{ v.data_modifica.strftime('%d/%m/%Y %H:%M') }}</td>
+                    <td>{{ v.motivo_modifica or '—' }}</td>
+                    <td><code class="small">{{ v.snapshot }}</code></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

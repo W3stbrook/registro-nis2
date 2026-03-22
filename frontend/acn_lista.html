@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2 class="mb-3">Catalogo ACN</h2>
+
+<div class="alert alert-{{ 'danger' if classificazione == 'essenziale' else 'warning' }} py-2">
+    Controlli filtrati per: <strong>soggetto {{ classificazione }}</strong>
+    (classificazione calcolata dal <a href="{{ url_for('profilo_azienda') }}">Profilo Azienda</a>)
+</div>
+
+<!-- Filtro per categoria -->
+<form method="get" class="row g-2 mb-4">
+    <div class="col-md-3">
+        <select name="categoria" class="form-select">
+            <option value="">Tutte le categorie</option>
+            {% for cat in ['GOVERN', 'IDENTIFY', 'PROTECT', 'DETECT', 'RESPOND', 'RECOVER'] %}
+            <option value="{{ cat }}" {% if categoria_filtro == cat %}selected{% endif %}>{{ cat }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-auto">
+        <button type="submit" class="btn btn-outline-primary">Filtra</button>
+    </div>
+</form>
+
+<!-- Ciclo sui controlli raggruppandoli per requirement.
+     Uso namespace() di Jinja2 perché le variabili normali
+     non si possono modificare dentro un for loop -->
+{% set current_req = namespace(codice='') %}
+{% for c in controlli %}
+    {% if c.codice_requirement != current_req.codice %}
+        {% if not loop.first %}</div></div>{% endif %}
+        {% set current_req.codice = c.codice_requirement %}
+        <div class="card mb-3">
+            <div class="card-header d-flex justify-content-between">
+                <span>
+                    <strong>{{ c.codice_requirement }}</strong>
+                    <span class="badge bg-secondary ms-2">{{ c.categoria }}</span>
+                    {% if c.applicabile_importanti %}
+                        <span class="badge bg-primary ms-1">importanti</span>
+                    {% endif %}
+                    {% if c.applicabile_essenziali and not c.applicabile_importanti %}
+                        <span class="badge bg-warning text-dark ms-1">solo essenziali</span>
+                    {% endif %}
+                </span>
+            </div>
+            <div class="card-body border-bottom">
+                <p class="mb-0 text-muted">{{ c.desc_requirement }}</p>
+            </div>
+            <div class="list-group list-group-flush">
+    {% endif %}
+
+    <div class="list-group-item">
+        <div class="d-flex justify-content-between align-items-start">
+            <div class="me-3">
+                <span class="fw-bold">Controllo {{ c.numero_controllo }}</span>
+                <span class="badge badge-{{ c.status_implementazione }} ms-2">
+                    {{ c.status_implementazione.replace('_', ' ') }}
+                </span>
+                <p class="mb-1 mt-1 small">{{ c.testo_controllo }}</p>
+                {% if c.note %}
+                    <p class="mb-0 text-muted small"><em>Nota: {{ c.note }}</em></p>
+                {% endif %}
+                <p class="mb-0 text-muted" style="font-size:0.75rem;">
+                    Aggiornato: {{ c.data_aggiornamento.strftime('%d/%m/%Y') }}
+                </p>
+            </div>
+            <!-- Form aggiornamento status -->
+            <form method="post"
+                  action="{{ url_for('acn_aggiorna_status', id_controllo=c.id_controllo) }}"
+                  class="d-flex gap-2 flex-shrink-0">
+                <select name="status" class="form-select form-select-sm" style="width: 180px;">
+                    {% for s in ['non_implementato', 'in_implementazione', 'implementato', 'non_applicabile'] %}
+                    <option value="{{ s }}" {% if c.status_implementazione == s %}selected{% endif %}>
+                        {{ s.replace('_', ' ') }}
+                    </option>
+                    {% endfor %}
+                </select>
+                <input type="text" name="note" class="form-control form-control-sm"
+                       placeholder="Nota" value="{{ c.note or '' }}" style="width: 160px;">
+                <button type="submit" class="btn btn-sm btn-outline-primary">Salva</button>
+            </form>
+        </div>
+    </div>
+
+    {% if loop.last %}</div></div>{% endif %}
+{% else %}
+    <p class="text-muted">Nessun controllo trovato.</p>
+{% endfor %}
+{% endblock %}
